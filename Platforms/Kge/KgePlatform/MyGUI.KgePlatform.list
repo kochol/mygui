@@ -1,0 +1,32 @@
+set (HEADER_FILES
+  include/MyGUI_KgeDataManager.h
+  include/MyGUI_KgeDiagnostic.h
+  include/MyGUI_KgePlatform.h
+  include/MyGUI_KgeRTTexture.h
+  include/MyGUI_KgeRenderManager.h
+  include/MyGUI_KgeTexture.h
+  include/MyGUI_KgeVertexBuffer.h
+)
+set (SOURCE_FILES
+  src/MyGUI_KgeDataManager.cpp
+  src/MyGUI_KgeRTTexture.cpp
+  src/MyGUI_KgeRenderManager.cpp
+  src/MyGUI_KgeTexture.cpp
+  src/MyGUI_KgeVertexBuffer.cpp
+)
+SOURCE_GROUP("Header Files" FILES
+  include/MyGUI_KgeDataManager.h
+  include/MyGUI_KgeDiagnostic.h
+  include/MyGUI_KgePlatform.h
+  include/MyGUI_KgeRTTexture.h
+  include/MyGUI_KgeRenderManager.h
+  include/MyGUI_KgeTexture.h
+  include/MyGUI_KgeVertexBuffer.h
+)
+SOURCE_GROUP("Source Files" FILES
+  src/MyGUI_KgeDataManager.cpp
+  src/MyGUI_KgeRTTexture.cpp
+  src/MyGUI_KgeRenderManager.cpp
+  src/MyGUI_KgeTexture.cpp
+  src/MyGUI_KgeVertexBuffer.cpp
+)

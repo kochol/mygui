@@ -4,32 +4,32 @@
 	@date		06/2009
 */
 
-#ifndef __MYGUI_DIRECTX_PLATFORM_H__
-#define __MYGUI_DIRECTX_PLATFORM_H__
+#ifndef __MYGUI_KGE_PLATFORM_H__
+#define __MYGUI_KGE_PLATFORM_H__
 
 #include "MyGUI_Prerequest.h"
-#include "MyGUI_DirectXRenderManager.h"
-#include "MyGUI_DirectXDataManager.h"
-#include "MyGUI_DirectXTexture.h"
-#include "MyGUI_DirectXVertexBuffer.h"
-#include "MyGUI_DirectXDiagnostic.h"
+#include "MyGUI_KgeRenderManager.h"
+#include "MyGUI_KgeDataManager.h"
+#include "MyGUI_KgeTexture.h"
+#include "MyGUI_KgeVertexBuffer.h"
+#include "MyGUI_KgeDiagnostic.h"
 #include "MyGUI_LogManager.h"
 
 namespace MyGUI
 {
 
-	class DirectXPlatform
+	class KgePlatform
 	{
 	public:
-		DirectXPlatform() :
+		KgePlatform() :
 			mIsInitialise(false)
 		{
 			mLogManager = new LogManager();
-			mRenderManager = new DirectXRenderManager();
-			mDataManager = new DirectXDataManager();
+			mRenderManager = new KgeRenderManager();
+			mDataManager = new KgeDataManager();
 		}
 
-		~DirectXPlatform()
+		~KgePlatform()
 		{
 			assert(!mIsInitialise);
 			delete mRenderManager;
@@ -58,13 +58,13 @@ namespace MyGUI
 			mDataManager->shutdown();
 		}
 
-		DirectXRenderManager* getRenderManagerPtr()
+		KgeRenderManager* getRenderManagerPtr()
 		{
 			assert(mIsInitialise);
 			return mRenderManager;
 		}
 
-		DirectXDataManager* getDataManagerPtr()
+		KgeDataManager* getDataManagerPtr()
 		{
 			assert(mIsInitialise);
 			return mDataManager;
@@ -72,12 +72,12 @@ namespace MyGUI
 
 	private:
 		bool mIsInitialise;
-		DirectXRenderManager* mRenderManager;
-		DirectXDataManager* mDataManager;
+		KgeRenderManager* mRenderManager;
+		KgeDataManager* mDataManager;
 		LogManager* mLogManager;
 
 	};
 
 } // namespace MyGUI
 
-#endif // __MYGUI_DIRECTX_PLATFORM_H__
+#endif // __MYGUI_KGE_PLATFORM_H__

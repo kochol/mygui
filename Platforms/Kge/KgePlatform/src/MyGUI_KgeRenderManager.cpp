@@ -5,24 +5,24 @@
 */
 
 #include <d3dx9.h>
-#include "MyGUI_DirectXRenderManager.h"
-#include "MyGUI_DirectXTexture.h"
-#include "MyGUI_DirectXVertexBuffer.h"
-#include "MyGUI_DirectXDiagnostic.h"
+#include "MyGUI_KgeRenderManager.h"
+#include "MyGUI_KgeTexture.h"
+#include "MyGUI_KgeVertexBuffer.h"
+#include "MyGUI_KgeDiagnostic.h"
 #include "MyGUI_Gui.h"
 #include "MyGUI_Timer.h"
 
 namespace MyGUI
 {
 
-	DirectXRenderManager::DirectXRenderManager() :
+	KgeRenderManager::KgeRenderManager() :
 		mIsInitialise(false),
 		mpD3DDevice(nullptr),
 		mUpdate(false)
 	{
 	}
 
-	void DirectXRenderManager::initialise(IDirect3DDevice9* _device)
+	void KgeRenderManager::initialise(IDirect3DDevice9* _device)
 	{
 		MYGUI_PLATFORM_ASSERT(!mIsInitialise, getClassTypeName() << " initialised twice");
 		MYGUI_PLATFORM_LOG(Info, "* Initialise: " << getClassTypeName());
@@ -55,7 +55,7 @@ namespace MyGUI
 		mIsInitialise = true;
 	}
 
-	void DirectXRenderManager::shutdown()
+	void KgeRenderManager::shutdown()
 	{
 		MYGUI_PLATFORM_ASSERT(mIsInitialise, getClassTypeName() << " is not initialised");
 		MYGUI_PLATFORM_LOG(Info, "* Shutdown: " << getClassTypeName());
@@ -67,27 +67,27 @@ namespace MyGUI
 		mIsInitialise = false;
 	}
 
-	IVertexBuffer* DirectXRenderManager::createVertexBuffer()
+	IVertexBuffer* KgeRenderManager::createVertexBuffer()
 	{
-		return new DirectXVertexBuffer(mpD3DDevice, this);
+		return new KgeVertexBuffer(mpD3DDevice, this);
 	}
 
-	void DirectXRenderManager::destroyVertexBuffer(IVertexBuffer* _buffer)
+	void KgeRenderManager::destroyVertexBuffer(IVertexBuffer* _buffer)
 	{
 		delete _buffer;
 	}
 
-	void DirectXRenderManager::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)
+	void KgeRenderManager::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)
 	{
-		DirectXTexture* dxTex = static_cast<DirectXTexture*>(_texture);
-		mpD3DDevice->SetTexture(0, dxTex->getDirectXTexture());
-		DirectXVertexBuffer* dxVB = static_cast<DirectXVertexBuffer*>(_buffer);
+		KgeTexture* dxTex = static_cast<KgeTexture*>(_texture);
+		mpD3DDevice->SetTexture(0, dxTex->getKgeTexture());
+		KgeVertexBuffer* dxVB = static_cast<KgeVertexBuffer*>(_buffer);
 		dxVB->setToStream(0);
 		// count in vertexes, triangle_list = vertexes / 3
 		mpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, _count / 3);
 	}
 
-	void DirectXRenderManager::drawOneFrame()
+	void KgeRenderManager::drawOneFrame()
 	{
 		Gui* gui = Gui::getInstancePtr();
 		if (gui == nullptr)
@@ -109,7 +109,7 @@ namespace MyGUI
 		mUpdate = false;
 	}
 
-	void DirectXRenderManager::begin()
+	void KgeRenderManager::begin()
 	{
 		mpD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
@@ -149,21 +149,21 @@ namespace MyGUI
 		mpD3DDevice->SetTransform(D3DTS_PROJECTION, &m);
 	}
 
-	void DirectXRenderManager::end()
+	void KgeRenderManager::end()
 	{
 	}
 
-	ITexture* DirectXRenderManager::createTexture(const std::string& _name)
+	ITexture* KgeRenderManager::createTexture(const std::string& _name)
 	{
 		MapTexture::const_iterator item = mTextures.find(_name);
 		MYGUI_PLATFORM_ASSERT(item == mTextures.end(), "Texture '" << _name << "' already exist");
 
-		DirectXTexture* texture = new DirectXTexture(_name, mpD3DDevice);
+		KgeTexture* texture = new KgeTexture(_name, mpD3DDevice);
 		mTextures[_name] = texture;
 		return texture;
 	}
 
-	void DirectXRenderManager::destroyTexture(ITexture* _texture)
+	void KgeRenderManager::destroyTexture(ITexture* _texture)
 	{
 		if (_texture == nullptr)
 			return;
@@ -175,7 +175,7 @@ namespace MyGUI
 		delete _texture;
 	}
 
-	ITexture* DirectXRenderManager::getTexture(const std::string& _name)
+	ITexture* KgeRenderManager::getTexture(const std::string& _name)
 	{
 		MapTexture::const_iterator item = mTextures.find(_name);
 		if (item != mTextures.end())
@@ -183,7 +183,7 @@ namespace MyGUI
 		return nullptr;
 	}
 
-	bool DirectXRenderManager::isFormatSupported(PixelFormat _format, TextureUsage _usage)
+	bool KgeRenderManager::isFormatSupported(PixelFormat _format, TextureUsage _usage)
 	{
 		D3DFORMAT internalFormat = D3DFMT_UNKNOWN;
 		unsigned long internalUsage = 0;
@@ -225,7 +225,7 @@ namespace MyGUI
 		return result;
 	}
 
-	void DirectXRenderManager::destroyAllResources()
+	void KgeRenderManager::destroyAllResources()
 	{
 		for (MapTexture::const_iterator item = mTextures.begin(); item != mTextures.end(); ++item)
 		{
@@ -234,7 +234,7 @@ namespace MyGUI
 		mTextures.clear();
 	}
 
-	void DirectXRenderManager::setViewSize(int _width, int _height)
+	void KgeRenderManager::setViewSize(int _width, int _height)
 	{
 		if (_height == 0)
 			_height = 1;
@@ -255,23 +255,23 @@ namespace MyGUI
 		mUpdate = true;
 	}
 
-	void DirectXRenderManager::deviceLost()
+	void KgeRenderManager::deviceLost()
 	{
 		MYGUI_PLATFORM_LOG(Info, "device D3D lost");
 
 		for (MapTexture::const_iterator item = mTextures.begin(); item != mTextures.end(); ++item)
 		{
-			static_cast<DirectXTexture*>(item->second)->deviceLost();
+			static_cast<KgeTexture*>(item->second)->deviceLost();
 		}
 	}
 
-	void DirectXRenderManager::deviceRestore()
+	void KgeRenderManager::deviceRestore()
 	{
 		MYGUI_PLATFORM_LOG(Info, "device D3D restore");
 
 		for (MapTexture::const_iterator item = mTextures.begin(); item != mTextures.end(); ++item)
 		{
-			static_cast<DirectXTexture*>(item->second)->deviceRestore();
+			static_cast<KgeTexture*>(item->second)->deviceRestore();
 		}
 
 		mUpdate = true;

@@ -5,13 +5,13 @@
 */
 
 #include <d3dx9.h>
-#include "MyGUI_DirectXRTTexture.h"
-#include "MyGUI_DirectXRenderManager.h"
+#include "MyGUI_KgeRTTexture.h"
+#include "MyGUI_KgeRenderManager.h"
 
 namespace MyGUI
 {
 
-	DirectXRTTexture::DirectXRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture) :
+	KgeRTTexture::KgeRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture) :
 		mpD3DDevice(_device),
 		mpTexture(_texture),
 		mpRenderSurface(NULL),
@@ -32,7 +32,7 @@ namespace MyGUI
 		mRenderTargetInfo.pixScaleY = 1.0f / float(height);
 	}
 
-	DirectXRTTexture::~DirectXRTTexture()
+	KgeRTTexture::~KgeRTTexture()
 	{
 		if (mpRenderSurface != nullptr)
 		{
@@ -41,7 +41,7 @@ namespace MyGUI
 		}
 	}
 
-	void DirectXRTTexture::begin()
+	void KgeRTTexture::begin()
 	{
 		mpD3DDevice->GetRenderTarget(0, &mpBackBuffer);
 
@@ -52,7 +52,7 @@ namespace MyGUI
 		mpD3DDevice->BeginScene();
 	}
 
-	void DirectXRTTexture::end()
+	void KgeRTTexture::end()
 	{
 		mpD3DDevice->EndScene();
 
@@ -60,9 +60,9 @@ namespace MyGUI
 		mpBackBuffer->Release();
 	}
 
-	void DirectXRTTexture::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)
+	void KgeRTTexture::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)
 	{
-		DirectXRenderManager::getInstance().doRender(_buffer, _texture, _count);
+		KgeRenderManager::getInstance().doRender(_buffer, _texture, _count);
 	}
 
 } // namespace MyGUI

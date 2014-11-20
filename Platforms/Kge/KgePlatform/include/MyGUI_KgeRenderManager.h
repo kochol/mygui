@@ -4,8 +4,8 @@
 	@date		06/2009
 */
 
-#ifndef __MYGUI_DIRECTX_RENDER_MANAGER_H__
-#define __MYGUI_DIRECTX_RENDER_MANAGER_H__
+#ifndef __MYGUI_KGE_RENDER_MANAGER_H__
+#define __MYGUI_KGE_RENDER_MANAGER_H__
 
 #include "MyGUI_Prerequest.h"
 #include "MyGUI_RenderFormat.h"
@@ -17,23 +17,23 @@ struct IDirect3DDevice9;
 namespace MyGUI
 {
 
-	class DirectXRenderManager :
+	class KgeRenderManager :
 		public RenderManager,
 		public IRenderTarget
 	{
 	public:
-		DirectXRenderManager();
+		KgeRenderManager();
 
 		void initialise(IDirect3DDevice9* _device);
 		void shutdown();
 
-		static DirectXRenderManager& getInstance()
+		static KgeRenderManager& getInstance()
 		{
 			return *getInstancePtr();
 		}
-		static DirectXRenderManager* getInstancePtr()
+		static KgeRenderManager* getInstancePtr()
 		{
-			return static_cast<DirectXRenderManager*>(RenderManager::getInstancePtr());
+			return static_cast<KgeRenderManager*>(RenderManager::getInstancePtr());
 		}
 
 		/** @see RenderManager::getViewSize */
@@ -102,4 +102,4 @@ namespace MyGUI
 
 } // namespace MyGUI
 
-#endif // __MYGUI_DIRECTX_RENDER_MANAGER_H__
+#endif // __MYGUI_KGE_RENDER_MANAGER_H__

@@ -4,8 +4,8 @@
 	@date		06/2009
 */
 
-#ifndef __MYGUI_DIRECTX_DIAGNOSTIC_H__
-#define __MYGUI_DIRECTX_DIAGNOSTIC_H__
+#ifndef __MYGUI_KGE_DIAGNOSTIC_H__
+#define __MYGUI_KGE_DIAGNOSTIC_H__
 
 #include "MyGUI_Prerequest.h"
 
@@ -34,4 +34,4 @@
 	} \
 }
 
-#endif // __MYGUI_DIRECTX_DIAGNOSTIC_H__
+#endif // __MYGUI_KGE_DIAGNOSTIC_H__

@@ -4,8 +4,8 @@
 	@date		06/2009
 */
 
-#ifndef __MYGUI_DIRECTX_TEXTURE_H__
-#define __MYGUI_DIRECTX_TEXTURE_H__
+#ifndef __MYGUI_KGE_TEXTURE_H__
+#define __MYGUI_KGE_TEXTURE_H__
 
 #include "MyGUI_Prerequest.h"
 #include "MyGUI_ITexture.h"
@@ -17,11 +17,11 @@ struct IDirect3DTexture9;
 namespace MyGUI
 {
 
-	class DirectXTexture : public ITexture
+	class KgeTexture : public ITexture
 	{
 	public:
-		DirectXTexture(const std::string& _name, IDirect3DDevice9* _device);
-		virtual ~DirectXTexture();
+		KgeTexture(const std::string& _name, IDirect3DDevice9* _device);
+		virtual ~KgeTexture();
 
 		virtual const std::string& getName() const;
 
@@ -45,7 +45,7 @@ namespace MyGUI
 		virtual IRenderTarget* getRenderTarget();
 
 		/*internal:*/
-		IDirect3DTexture9* getDirectXTexture()
+		IDirect3DTexture9* getKgeTexture()
 		{
 			return mpTexture;
 		}
@@ -69,4 +69,4 @@ namespace MyGUI
 
 } // namespace MyGUI
 
-#endif // __MYGUI_DIRECTX_TEXTURE_H__
+#endif // __MYGUI_KGE_TEXTURE_H__

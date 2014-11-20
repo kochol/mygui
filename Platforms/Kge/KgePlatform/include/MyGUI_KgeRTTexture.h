@@ -4,8 +4,8 @@
 	@date		12/2009
 */
 
-#ifndef __MYGUI_DIRECTX_RTTEXTURE_H__
-#define __MYGUI_DIRECTX_RTTEXTURE_H__
+#ifndef __MYGUI_KGE_RTTEXTURE_H__
+#define __MYGUI_KGE_RTTEXTURE_H__
 
 #include "MyGUI_Prerequest.h"
 #include "MyGUI_ITexture.h"
@@ -19,12 +19,12 @@ struct IDirect3DSurface9;
 namespace MyGUI
 {
 
-	class DirectXRTTexture :
+	class KgeRTTexture :
 		public IRenderTarget
 	{
 	public:
-		DirectXRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture);
-		virtual ~DirectXRTTexture();
+		KgeRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture);
+		virtual ~KgeRTTexture();
 
 		virtual void begin();
 		virtual void end();
@@ -46,4 +46,4 @@ namespace MyGUI
 
 } // namespace MyGUI
 
-#endif // __MYGUI_DIRECTX_RTTEXTURE_H__
+#endif // __MYGUI_KGE_RTTEXTURE_H__

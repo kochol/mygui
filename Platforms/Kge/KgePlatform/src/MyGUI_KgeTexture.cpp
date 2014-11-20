@@ -5,15 +5,15 @@
 */
 
 #include <d3dx9.h>
-#include "MyGUI_DirectXTexture.h"
-#include "MyGUI_DirectXDataManager.h"
-#include "MyGUI_DirectXRTTexture.h"
-#include "MyGUI_DirectXDiagnostic.h"
+#include "MyGUI_KgeTexture.h"
+#include "MyGUI_KgeDataManager.h"
+#include "MyGUI_KgeRTTexture.h"
+#include "MyGUI_KgeDiagnostic.h"
 
 namespace MyGUI
 {
 
-	DirectXTexture::DirectXTexture(const std::string& _name, IDirect3DDevice9* _device) :
+	KgeTexture::KgeTexture(const std::string& _name, IDirect3DDevice9* _device) :
 		mName(_name),
 		mpD3DDevice(_device),
 		mpTexture(NULL),
@@ -26,17 +26,17 @@ namespace MyGUI
 	{
 	}
 
-	DirectXTexture::~DirectXTexture()
+	KgeTexture::~KgeTexture()
 	{
 		destroy();
 	}
 
-	const std::string& DirectXTexture::getName() const
+	const std::string& KgeTexture::getName() const
 	{
 		return mName;
 	}
 
-	void DirectXTexture::createManual(int _width, int _height, TextureUsage _usage, PixelFormat _format)
+	void KgeTexture::createManual(int _width, int _height, TextureUsage _usage, PixelFormat _format)
 	{
 		destroy();
 
@@ -94,14 +94,14 @@ namespace MyGUI
 
 	}
 
-	void DirectXTexture::loadFromFile(const std::string& _filename)
+	void KgeTexture::loadFromFile(const std::string& _filename)
 	{
 		destroy();
 		mTextureUsage = TextureUsage::Default;
 		mPixelFormat = PixelFormat::R8G8B8A8;
 		mNumElemBytes = 4;
 
-		std::string fullname = DirectXDataManager::getInstance().getDataPath(_filename);
+		std::string fullname = KgeDataManager::getInstance().getDataPath(_filename);
 
 		D3DXIMAGE_INFO info;
 		D3DXGetImageInfoFromFile(fullname.c_str(), &info);
@@ -139,7 +139,7 @@ namespace MyGUI
 		}
 	}
 
-	void DirectXTexture::destroy()
+	void KgeTexture::destroy()
 	{
 		if (mRenderTarget != nullptr)
 		{
@@ -162,17 +162,17 @@ namespace MyGUI
 		}
 	}
 
-	int DirectXTexture::getWidth()
+	int KgeTexture::getWidth()
 	{
 		return mSize.width;
 	}
 
-	int DirectXTexture::getHeight()
+	int KgeTexture::getHeight()
 	{
 		return mSize.height;
 	}
 
-	void* DirectXTexture::lock(TextureUsage _access)
+	void* KgeTexture::lock(TextureUsage _access)
 	{
 		D3DLOCKED_RECT d3dlr;
 		int lockFlag = (_access == TextureUsage::Write) ? D3DLOCK_DISCARD : D3DLOCK_READONLY;
@@ -187,7 +187,7 @@ namespace MyGUI
 		return d3dlr.pBits;
 	}
 
-	void DirectXTexture::unlock()
+	void KgeTexture::unlock()
 	{
 		HRESULT result = mpTexture->UnlockRect(0);
 		if (FAILED(result))
@@ -198,38 +198,38 @@ namespace MyGUI
 		mLock = false;
 	}
 
-	bool DirectXTexture::isLocked()
+	bool KgeTexture::isLocked()
 	{
 		return mLock;
 	}
 
-	PixelFormat DirectXTexture::getFormat()
+	PixelFormat KgeTexture::getFormat()
 	{
 		return mPixelFormat;
 	}
 
-	size_t DirectXTexture::getNumElemBytes()
+	size_t KgeTexture::getNumElemBytes()
 	{
 		return mNumElemBytes;
 	}
 
-	TextureUsage DirectXTexture::getUsage()
+	TextureUsage KgeTexture::getUsage()
 	{
 		return mTextureUsage;
 	}
 
-	IRenderTarget* DirectXTexture::getRenderTarget()
+	IRenderTarget* KgeTexture::getRenderTarget()
 	{
 		if (mpTexture == nullptr)
 			return nullptr;
 
 		if (mRenderTarget == nullptr)
-			mRenderTarget = new DirectXRTTexture(mpD3DDevice, mpTexture);
+			mRenderTarget = new KgeRTTexture(mpD3DDevice, mpTexture);
 
 		return mRenderTarget;
 	}
 
-	void DirectXTexture::deviceLost()
+	void KgeTexture::deviceLost()
 	{
 		if (mInternalPool == D3DPOOL_DEFAULT)
 		{
@@ -237,7 +237,7 @@ namespace MyGUI
 		}
 	}
 
-	void DirectXTexture::deviceRestore()
+	void KgeTexture::deviceRestore()
 	{
 		if (mInternalPool == D3DPOOL_DEFAULT)
 		{

@@ -21,6 +21,8 @@
 #include <MyGUI_DirectXRenderManager.h>
 #elif MYGUI_DIRECTX11_PLATFORM
 #include <MyGUI_DirectX11RenderManager.h>
+#elif MYGUI_KGE_PLATFORM
+#include <MyGUI_KgeRenderManager.h>
 #endif
 
 namespace MyGUI
@@ -76,6 +78,8 @@ namespace MyGUI
 		DirectXRenderManager::getInstancePtr()->doRender(_buffer, _texture, _count);
 #elif MYGUI_DIRECTX11_PLATFORM
 		DirectX11RenderManager::getInstancePtr()->doRender(_buffer, _texture, _count);
+#elif MYGUI_KGE_PLATFORM
+		KgeRenderManager::getInstancePtr()->doRender(_buffer, _texture, _count);
 #endif
 	}
 

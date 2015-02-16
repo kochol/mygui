@@ -8,7 +8,7 @@
 #include "Precompiled.h"
 #include <d3dx9.h>
 #include "BaseManager.h"
-#include <MyGUI_DirectXPlatform.h>
+#include <MyGUI_KgePlatform.h>
 
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 #	include <windows.h>

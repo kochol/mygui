@@ -4,24 +4,24 @@
 	@date		06/2009
 */
 
-#include <d3dx9.h>
 #include "MyGUI_KgeTexture.h"
 #include "MyGUI_KgeDataManager.h"
 #include "MyGUI_KgeRTTexture.h"
 #include "MyGUI_KgeDiagnostic.h"
+#include <gfx/Texture.h>
+#include <Device.h>
+#include <gfx/Renderer.h>
 
 namespace MyGUI
 {
 
-	KgeTexture::KgeTexture(const std::string& _name, IDirect3DDevice9* _device) :
+	KgeTexture::KgeTexture(const std::string& _name, kge::Device* _device) :
 		mName(_name),
-		mpD3DDevice(_device),
+		mpKGEDevice(_device),
 		mpTexture(NULL),
 		mNumElemBytes(0),
 		mLock(false),
 		mRenderTarget(nullptr),
-		mInternalPool(D3DPOOL_MANAGED),
-		mInternalFormat(D3DFMT_UNKNOWN),
 		mInternalUsage(0)
 	{
 	}
@@ -41,41 +41,37 @@ namespace MyGUI
 		destroy();
 
 		mInternalUsage = 0;
-		mInternalFormat = D3DFMT_UNKNOWN;
 
 		mSize.set(_width, _height);
 		mTextureUsage = _usage;
 		mPixelFormat = _format;
-		mInternalPool = D3DPOOL_MANAGED;
+		bool Dynamic = false;
 
-		if (mTextureUsage == TextureUsage::RenderTarget)
-		{
-			mInternalUsage |= D3DUSAGE_RENDERTARGET;
-			mInternalPool = D3DPOOL_DEFAULT;
-		}
-		else if (mTextureUsage == TextureUsage::Dynamic)
-			mInternalUsage |= D3DUSAGE_DYNAMIC;
+		if (mTextureUsage == TextureUsage::Dynamic)
+			Dynamic = true;
 		else if (mTextureUsage == TextureUsage::Stream)
-			mInternalUsage |= D3DUSAGE_DYNAMIC;
+			Dynamic = true;
 
+		kge::gfx::TextureFormat tf;
 		if (mPixelFormat == PixelFormat::R8G8B8A8)
 		{
-			mInternalFormat = D3DFMT_A8R8G8B8;
+			tf = kge::gfx::ETF_A8R8G8B8;
 			mNumElemBytes = 4;
 		}
 		else if (mPixelFormat == PixelFormat::R8G8B8)
 		{
-			mInternalFormat = D3DFMT_R8G8B8;
+			tf = kge::gfx::ETF_R8G8B8;
 			mNumElemBytes = 3;
 		}
 		else if (mPixelFormat == PixelFormat::L8A8)
 		{
-			mInternalFormat = D3DFMT_A8L8;
+			tf = kge::gfx::ETF_A8L8;
 			mNumElemBytes = 2;
 		}
 		else if (mPixelFormat == PixelFormat::L8)
 		{
-			mInternalFormat = D3DFMT_L8;
+			tf = kge::gfx::ETF_A8;
+//			mInternalFormat = D3DFMT_L8;
 			mNumElemBytes = 1;
 		}
 		else
@@ -83,15 +79,19 @@ namespace MyGUI
 			MYGUI_PLATFORM_EXCEPT("Creating texture with unknown pixel formal.");
 		}
 
-		HRESULT result = mpD3DDevice->CreateTexture(mSize.width, mSize.height, 1, mInternalUsage, mInternalFormat, mInternalPool, &mpTexture, NULL);
-		if (FAILED(result))
+		if (mTextureUsage == TextureUsage::RenderTarget)
 		{
-			MYGUI_PLATFORM_EXCEPT("Failed to create texture (error code " << result <<"): size '" << mSize <<
-				"' internal usage '" << mInternalUsage <<
-				"' internal format '" << mInternalFormat << "'."
-				);
+			mpKGEDevice->GetRenderer()->CreateRenderableTexture(&mpTexture, _width, _height, kge::gfx::ETF_A8R8G8B8);
 		}
-
+		else
+		{
+			static int i = 0;
+			i++;
+			std::string str = "MyGUITexture" + i;
+			int ihandle = mpKGEDevice->GetTextureManager()->Add(NULL, NULL, str.c_str());
+			mpTexture = mpKGEDevice->GetTextureManager()->GetResource(ihandle);
+			mpTexture->CreateTexture(_width, _height, tf, 0, false, Dynamic);
+		}		
 	}
 
 	void KgeTexture::loadFromFile(const std::string& _filename)
@@ -103,40 +103,31 @@ namespace MyGUI
 
 		std::string fullname = KgeDataManager::getInstance().getDataPath(_filename);
 
-		D3DXIMAGE_INFO info;
-		D3DXGetImageInfoFromFile(fullname.c_str(), &info);
-
-		if (info.Format == D3DFMT_A8R8G8B8)
+		int ihandle = mpKGEDevice->GetTextureManager()->Add(fullname.c_str(), NULL, NULL);
+		mpTexture = mpKGEDevice->GetTextureManager()->GetResource(ihandle);
+		kge::gfx::TextureFormat tf = mpTexture->GetFormat();
+		if (tf == kge::gfx::ETF_A8R8G8B8)
 		{
 			mPixelFormat = PixelFormat::R8G8B8A8;
 			mNumElemBytes = 4;
 		}
-		else if (info.Format == D3DFMT_R8G8B8)
+		else if (tf == kge::gfx::ETF_R8G8B8)
 		{
 			mPixelFormat = PixelFormat::R8G8B8;
 			mNumElemBytes = 3;
 		}
-		else if (info.Format == D3DFMT_A8L8)
+		else if (tf == kge::gfx::ETF_A8L8)
 		{
 			mPixelFormat = PixelFormat::L8A8;
 			mNumElemBytes = 2;
 		}
-		else if (info.Format == D3DFMT_L8)
+		else if (tf == kge::gfx::ETF_A8)
 		{
 			mPixelFormat = PixelFormat::L8;
 			mNumElemBytes = 1;
 		}
-
-		mSize.set(info.Width, info.Height);
-		HRESULT result = D3DXCreateTextureFromFile(mpD3DDevice, fullname.c_str(), &mpTexture);
-		if (FAILED(result))
-		{
-			MYGUI_PLATFORM_EXCEPT("Failed to load texture '" << _filename <<
-				"' (error code " << result <<
-				"): size '" << mSize <<
-				"' format '" << info.Format << "'."
-				);
-		}
+		
+		mSize.set(mpTexture->GetWidth(), mpTexture->GetHeight());
 	}
 
 	void KgeTexture::destroy()
@@ -149,14 +140,7 @@ namespace MyGUI
 
 		if (mpTexture != nullptr)
 		{
-			int nNewRefCount = mpTexture->Release();
-
-			if (nNewRefCount > 0)
-			{
-				MYGUI_PLATFORM_EXCEPT("The texture object failed to cleanup properly.\n"
-					"Release() returned a reference count of '" << nNewRefCount << "'."
-					);
-			}
+			mpTexture->DecRef();
 
 			mpTexture = nullptr;
 		}
@@ -174,26 +158,16 @@ namespace MyGUI
 
 	void* KgeTexture::lock(TextureUsage _access)
 	{
-		D3DLOCKED_RECT d3dlr;
-		int lockFlag = (_access == TextureUsage::Write) ? D3DLOCK_DISCARD : D3DLOCK_READONLY;
-
-		HRESULT result = mpTexture->LockRect(0, &d3dlr, NULL, lockFlag);
-		if (FAILED(result))
-		{
-			MYGUI_PLATFORM_EXCEPT("Failed to lock texture (error code " << result << ").");
-		}
+		
+//		int lockFlag = (_access == TextureUsage::Write) ? D3DLOCK_DISCARD : D3DLOCK_READONLY;
 
 		mLock = true;
-		return d3dlr.pBits;
+		return mpTexture->Lock();
 	}
 
 	void KgeTexture::unlock()
 	{
-		HRESULT result = mpTexture->UnlockRect(0);
-		if (FAILED(result))
-		{
-			MYGUI_PLATFORM_EXCEPT("Failed to unlock texture (error code " << result << ").");
-		}
+		mpTexture->UnLock();
 
 		mLock = false;
 	}
@@ -224,29 +198,9 @@ namespace MyGUI
 			return nullptr;
 
 		if (mRenderTarget == nullptr)
-			mRenderTarget = new KgeRTTexture(mpD3DDevice, mpTexture);
+			mRenderTarget = new KgeRTTexture(mpKGEDevice, mpTexture);
 
 		return mRenderTarget;
-	}
-
-	void KgeTexture::deviceLost()
-	{
-		if (mInternalPool == D3DPOOL_DEFAULT)
-		{
-			destroy();
-		}
-	}
-
-	void KgeTexture::deviceRestore()
-	{
-		if (mInternalPool == D3DPOOL_DEFAULT)
-		{
-			HRESULT result = mpD3DDevice->CreateTexture(mSize.width, mSize.height, 1, mInternalUsage, mInternalFormat, D3DPOOL_DEFAULT, &mpTexture, NULL);
-			if (FAILED(result))
-			{
-				MYGUI_PLATFORM_EXCEPT("Failed to recreate texture on device restore (error code " << result << ").");
-			}
-		}
 	}
 
 } // namespace MyGUI

@@ -11,8 +11,17 @@
 #include "MyGUI_IVertexBuffer.h"
 #include "MyGUI_KgeRenderManager.h"
 
-struct IDirect3DDevice9;
-struct IDirect3DVertexBuffer9;
+namespace kge
+{
+	namespace gfx
+	{
+		class HardwareBuffer;
+
+	} // gfx
+
+	class Device;
+
+} // kge
 
 namespace MyGUI
 {
@@ -20,7 +29,7 @@ namespace MyGUI
 	class KgeVertexBuffer : public IVertexBuffer
 	{
 	public:
-		KgeVertexBuffer(IDirect3DDevice9* _device, KgeRenderManager* _pRenderManager);
+		KgeVertexBuffer(kge::Device* _device, KgeRenderManager* _pRenderManager);
 		virtual ~KgeVertexBuffer();
 
 		virtual void setVertexCount(size_t _count);
@@ -38,8 +47,8 @@ namespace MyGUI
 		void resize();
 
 	private:
-		IDirect3DDevice9* mpD3DDevice;
-		IDirect3DVertexBuffer9* mpBuffer;
+		kge::Device* mpKGEDevice;
+		kge::gfx::HardwareBuffer* mpBuffer;
 		KgeRenderManager* pRenderManager;
 
 		size_t mVertexCount;

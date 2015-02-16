@@ -1,7 +1,7 @@
 /*!
-	@file
-	@author		Albert Semenov
-	@date		12/2009
+@file
+@author		Ali Akbar Mohammadi
+@date		11/2014
 */
 
 #ifndef __MYGUI_KGE_RTTEXTURE_H__
@@ -12,9 +12,16 @@
 #include "MyGUI_RenderFormat.h"
 #include "MyGUI_IRenderTarget.h"
 
-struct IDirect3DDevice9;
-struct IDirect3DTexture9;
-struct IDirect3DSurface9;
+namespace kge
+{
+	class Device;
+	namespace gfx
+	{
+		class Texture;
+
+	} // gfx
+
+} // kge
 
 namespace MyGUI
 {
@@ -23,7 +30,7 @@ namespace MyGUI
 		public IRenderTarget
 	{
 	public:
-		KgeRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture);
+		KgeRTTexture(kge::Device* _device, kge::gfx::Texture* _texture);
 		virtual ~KgeRTTexture();
 
 		virtual void begin();
@@ -37,10 +44,8 @@ namespace MyGUI
 		}
 
 	private:
-		IDirect3DDevice9* mpD3DDevice;
-		IDirect3DTexture9* mpTexture;
-		IDirect3DSurface9* mpRenderSurface;
-		IDirect3DSurface9* mpBackBuffer;
+		kge::Device* mpKGEDevice;
+		kge::gfx::Texture* mpTexture;		
 		RenderTargetInfo mRenderTargetInfo;
 	};
 

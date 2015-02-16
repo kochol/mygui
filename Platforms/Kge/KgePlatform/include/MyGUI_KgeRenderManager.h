@@ -12,7 +12,10 @@
 #include "MyGUI_IVertexBuffer.h"
 #include "MyGUI_RenderManager.h"
 
-struct IDirect3DDevice9;
+namespace kge
+{
+	class Device;
+}
 
 namespace MyGUI
 {
@@ -24,7 +27,7 @@ namespace MyGUI
 	public:
 		KgeRenderManager();
 
-		void initialise(IDirect3DDevice9* _device);
+		void initialise(kge::Device* _device);
 		void shutdown();
 
 		static KgeRenderManager& getInstance()
@@ -88,7 +91,7 @@ namespace MyGUI
 		void destroyAllResources();
 
 	private:
-		IDirect3DDevice9* mpD3DDevice;
+		kge::Device* mpKGEDevice;
 		IntSize mViewSize;
 		VertexColourType mVertexFormat;
 		RenderTargetInfo mInfo;

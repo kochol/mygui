@@ -1,13 +1,15 @@
 /*!
-	@file
-	@author		Losev Vasiliy aka bool
-	@date		06/2009
+@file
+@author		Ali Akbar Mohammadi
+@date		11/2014
 */
 
-#include <d3dx9.h>
 #include "MyGUI_KgeVertexBuffer.h"
 #include "MyGUI_VertexData.h"
 #include "MyGUI_KgeDiagnostic.h"
+#include <gfx/HardwareBuffer.h>
+#include <Device.h>
+#include <gfx/Renderer.h>
 
 namespace MyGUI
 {
@@ -15,10 +17,10 @@ namespace MyGUI
 	const size_t VERTEX_IN_QUAD = 6;
 	const size_t RENDER_ITEM_STEEP_REALLOCK = 5 * VERTEX_IN_QUAD;
 
-	KgeVertexBuffer::KgeVertexBuffer(IDirect3DDevice9* _device, KgeRenderManager* _pRenderManager) :
+	KgeVertexBuffer::KgeVertexBuffer(kge::Device* _device, KgeRenderManager* _pRenderManager) :
 		mNeedVertexCount(0),
 		mVertexCount(RENDER_ITEM_STEEP_REALLOCK),
-		mpD3DDevice(_device),
+		mpKGEDevice(_device),
 		pRenderManager(_pRenderManager),
 		mpBuffer(NULL)
 	{
@@ -46,50 +48,48 @@ namespace MyGUI
 	Vertex* KgeVertexBuffer::lock()
 	{
 		void* lockPtr = nullptr;
-		HRESULT result = mpBuffer->Lock(0, 0, (void**)&lockPtr, 0);
-		if (FAILED(result))
+		bool result = mpBuffer->Lock(0, 0, (void**)&lockPtr, 0);
+		if (!result)
 		{
-			MYGUI_PLATFORM_EXCEPT("Failed to lock vertex buffer (error code " << result << ").");
+			MYGUI_PLATFORM_EXCEPT("Failed to lock vertex buffer.");
 		}
 		return reinterpret_cast<Vertex*>(lockPtr);
 	}
 
 	void KgeVertexBuffer::unlock()
 	{
-		HRESULT result = mpBuffer->Unlock();
-		if (FAILED(result))
+		bool result = mpBuffer->Unlock();
+		if (!result)
 		{
-			MYGUI_PLATFORM_EXCEPT("Failed to unlock vertex buffer (error code " << result << ").");
+			MYGUI_PLATFORM_EXCEPT("Failed to unlock vertex buffer.");
 		}
 	}
 
 	bool KgeVertexBuffer::setToStream(size_t stream)
 	{
-		if (SUCCEEDED(mpD3DDevice->SetStreamSource(stream, mpBuffer, 0, sizeof(MyGUI::Vertex))))
-			return true;
-		return false;
+		mpKGEDevice->GetRenderer()->SetVertexBuffer(mpBuffer, stream);
+		return true;
 	}
 
 	bool KgeVertexBuffer::create()
 	{
 		DWORD length = mNeedVertexCount * sizeof(MyGUI::Vertex);
-		if (SUCCEEDED(mpD3DDevice->CreateVertexBuffer(length, 0, 0, D3DPOOL_MANAGED, &mpBuffer, nullptr)))
-			return false;
-		return false;
+		mpBuffer = mpKGEDevice->GetRenderer()->CreateVertexBuffer(NULL, mNeedVertexCount, sizeof(MyGUI::Vertex), true);
+		return true;
 	}
 
 	void KgeVertexBuffer::destroy()
 	{
 		if (mpBuffer)
 		{
-			mpBuffer->Release();
+			mpBuffer->DecRef();
 			mpBuffer = nullptr;
 		}
 	}
 
 	void KgeVertexBuffer::resize()
 	{
-		if (mpD3DDevice)
+		if (mpKGEDevice)
 		{
 			destroy();
 			create();

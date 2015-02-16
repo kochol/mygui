@@ -1,7 +1,7 @@
 /*!
-	@file
-	@author		Losev Vasiliy aka bool
-	@date		06/2009
+@file
+@author		Ali Akbar Mohammadi
+@date		11/2014
 */
 
 #ifndef __MYGUI_KGE_PLATFORM_H__
@@ -14,6 +14,12 @@
 #include "MyGUI_KgeVertexBuffer.h"
 #include "MyGUI_KgeDiagnostic.h"
 #include "MyGUI_LogManager.h"
+#include <assert.h>
+
+namespace kge
+{
+	class Device;
+}
 
 namespace MyGUI
 {
@@ -37,7 +43,7 @@ namespace MyGUI
 			delete mLogManager;
 		}
 
-		void initialise(IDirect3DDevice9* _device, const std::string& _logName = MYGUI_PLATFORM_LOG_FILENAME)
+		void initialise(kge::Device* _device, const std::string& _logName = MYGUI_PLATFORM_LOG_FILENAME)
 		{
 			assert(!mIsInitialise);
 			mIsInitialise = true;

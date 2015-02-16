@@ -1,7 +1,7 @@
 /*!
-	@file
-	@author		Losev Vasiliy aka bool
-	@date		06/2009
+@file
+@author		Ali Akbar Mohammadi
+@date		11/2014
 */
 
 #ifndef __MYGUI_KGE_DIAGNOSTIC_H__

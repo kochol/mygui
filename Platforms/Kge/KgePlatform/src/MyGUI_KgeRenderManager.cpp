@@ -4,51 +4,52 @@
 	@date		06/2009
 */
 
-#include <d3dx9.h>
 #include "MyGUI_KgeRenderManager.h"
 #include "MyGUI_KgeTexture.h"
 #include "MyGUI_KgeVertexBuffer.h"
 #include "MyGUI_KgeDiagnostic.h"
 #include "MyGUI_Gui.h"
 #include "MyGUI_Timer.h"
+#include <Device.h>
+#include <gfx/Renderer.h>
 
 namespace MyGUI
 {
 
 	KgeRenderManager::KgeRenderManager() :
 		mIsInitialise(false),
-		mpD3DDevice(nullptr),
+		mpKGEDevice(nullptr),
 		mUpdate(false)
 	{
 	}
 
-	void KgeRenderManager::initialise(IDirect3DDevice9* _device)
+	void KgeRenderManager::initialise(kge::Device* _device)
 	{
 		MYGUI_PLATFORM_ASSERT(!mIsInitialise, getClassTypeName() << " initialised twice");
 		MYGUI_PLATFORM_LOG(Info, "* Initialise: " << getClassTypeName());
 
-		mpD3DDevice = _device;
+		mpKGEDevice = _device;
 
 		mVertexFormat = VertexColourType::ColourARGB;
 
 		memset(&mInfo, 0, sizeof(mInfo));
-		if (mpD3DDevice != nullptr)
+		if (mpKGEDevice != nullptr)
 		{
-			D3DVIEWPORT9 vp;
-			mpD3DDevice->GetViewport(&vp);
-			setViewSize(vp.Width, vp.Height);
+			kge::gfx::Renderer* pRenderer = mpKGEDevice->GetRenderer();
+			setViewSize(pRenderer->GetWindowWidth(), pRenderer->GetWindowHeight());
 		}
 
 		mUpdate = false;
 
-		if (mpD3DDevice != nullptr)
+		if (mpKGEDevice != nullptr)
 		{
-			D3DCAPS9 caps;
-			mpD3DDevice->GetDeviceCaps(&caps);
-			if (caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY)
-			{
-				MYGUI_PLATFORM_LOG(Warning, "Non-squared textures not supported.");
-			}
+			//mpKGEDevice->GetRenderer()->CanDo(kge::gfx::GraphicCardCaps::);
+			//D3DCAPS9 caps;
+			//mpD3DDevice->GetDeviceCaps(&caps);
+			//if (caps.TextureCaps & D3DPTEXTURECAPS_SQUAREONLY)
+			//{
+			//	MYGUI_PLATFORM_LOG(Warning, "Non-squared textures not supported.");
+			//}
 		}
 
 		MYGUI_PLATFORM_LOG(Info, getClassTypeName() << " successfully initialized");
@@ -61,7 +62,7 @@ namespace MyGUI
 		MYGUI_PLATFORM_LOG(Info, "* Shutdown: " << getClassTypeName());
 
 		destroyAllResources();
-		mpD3DDevice = nullptr;
+		mpKGEDevice = nullptr;
 
 		MYGUI_PLATFORM_LOG(Info, getClassTypeName() << " successfully shutdown");
 		mIsInitialise = false;
@@ -69,7 +70,7 @@ namespace MyGUI
 
 	IVertexBuffer* KgeRenderManager::createVertexBuffer()
 	{
-		return new KgeVertexBuffer(mpD3DDevice, this);
+		return new KgeVertexBuffer(mpKGEDevice, this);
 	}
 
 	void KgeRenderManager::destroyVertexBuffer(IVertexBuffer* _buffer)
@@ -80,11 +81,12 @@ namespace MyGUI
 	void KgeRenderManager::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)
 	{
 		KgeTexture* dxTex = static_cast<KgeTexture*>(_texture);
-		mpD3DDevice->SetTexture(0, dxTex->getKgeTexture());
+		mpKGEDevice->GetRenderer()->SetTexture(dxTex->getKgeTexture());
 		KgeVertexBuffer* dxVB = static_cast<KgeVertexBuffer*>(_buffer);
 		dxVB->setToStream(0);
 		// count in vertexes, triangle_list = vertexes / 3
-		mpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, _count / 3);
+		mpKGEDevice->GetRenderer()->DrawTriangleList(_count, 0,
+			mpKGEDevice->GetRenderer()->GetVertexDec(kge::gfx::EVT_V3CT), 0, 0);
 	}
 
 	void KgeRenderManager::drawOneFrame()
@@ -111,42 +113,42 @@ namespace MyGUI
 
 	void KgeRenderManager::begin()
 	{
-		mpD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		//mpD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG0, D3DTA_DIFFUSE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG0, D3DTA_DIFFUSE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG0, D3DTA_DIFFUSE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-		mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG0, D3DTA_DIFFUSE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		//mpD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-		mpD3DDevice->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
-		mpD3DDevice->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-		mpD3DDevice->SetSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_NONE );
+		//mpD3DDevice->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
+		//mpD3DDevice->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+		//mpD3DDevice->SetSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_NONE );
 
-		mpD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
-		mpD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+		//mpD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+		//mpD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
-		mpD3DDevice->SetRenderState(D3DRS_SRCBLEND,   D3DBLEND_SRCALPHA);
-		mpD3DDevice->SetRenderState(D3DRS_DESTBLEND,  D3DBLEND_INVSRCALPHA);
+		//mpD3DDevice->SetRenderState(D3DRS_SRCBLEND,   D3DBLEND_SRCALPHA);
+		//mpD3DDevice->SetRenderState(D3DRS_DESTBLEND,  D3DBLEND_INVSRCALPHA);
 
-		mpD3DDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		mpD3DDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
-		mpD3DDevice->SetRenderState(D3DRS_LIGHTING, 0);
-		mpD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		//mpD3DDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+		//mpD3DDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+		//mpD3DDevice->SetRenderState(D3DRS_LIGHTING, 0);
+		//mpD3DDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
-		mpD3DDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+		//mpD3DDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 
-		mpD3DDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+		//mpD3DDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1);
 
-		D3DXMATRIX m;
-		D3DXMatrixIdentity(&m);
-		mpD3DDevice->SetTransform(D3DTS_WORLD, &m);
-		mpD3DDevice->SetTransform(D3DTS_VIEW, &m);
-		mpD3DDevice->SetTransform(D3DTS_PROJECTION, &m);
+		//D3DXMATRIX m;
+		//D3DXMatrixIdentity(&m);
+		//mpD3DDevice->SetTransform(D3DTS_WORLD, &m);
+		//mpD3DDevice->SetTransform(D3DTS_VIEW, &m);
+		//mpD3DDevice->SetTransform(D3DTS_PROJECTION, &m);
 	}
 
 	void KgeRenderManager::end()
@@ -158,7 +160,7 @@ namespace MyGUI
 		MapTexture::const_iterator item = mTextures.find(_name);
 		MYGUI_PLATFORM_ASSERT(item == mTextures.end(), "Texture '" << _name << "' already exist");
 
-		KgeTexture* texture = new KgeTexture(_name, mpD3DDevice);
+		KgeTexture* texture = new KgeTexture(_name, mpKGEDevice);
 		mTextures[_name] = texture;
 		return texture;
 	}
@@ -185,44 +187,45 @@ namespace MyGUI
 
 	bool KgeRenderManager::isFormatSupported(PixelFormat _format, TextureUsage _usage)
 	{
-		D3DFORMAT internalFormat = D3DFMT_UNKNOWN;
-		unsigned long internalUsage = 0;
-		D3DPOOL internalPool = D3DPOOL_MANAGED;
-
-		if (_usage == TextureUsage::RenderTarget)
-		{
-			internalUsage |= D3DUSAGE_RENDERTARGET;
-			internalPool = D3DPOOL_MANAGED;
-		}
-		else if (_usage == TextureUsage::Dynamic)
-			internalUsage |= D3DUSAGE_DYNAMIC;
-		else if (_usage == TextureUsage::Stream)
-			internalUsage |= D3DUSAGE_DYNAMIC;
-
-		if (_format == PixelFormat::R8G8B8A8)
-		{
-			internalFormat = D3DFMT_A8R8G8B8;
-		}
-		else if (_format == PixelFormat::R8G8B8)
-		{
-			internalFormat = D3DFMT_R8G8B8;
-		}
-		else if (_format == PixelFormat::L8A8)
-		{
-			internalFormat = D3DFMT_A8L8;
-		}
-		else if (_format == PixelFormat::L8)
-		{
-			internalFormat = D3DFMT_L8;
-		}
-
-		D3DFORMAT requestedlFormat = internalFormat;
-		D3DXCheckTextureRequirements(mpD3DDevice, NULL, NULL, NULL, internalUsage, &internalFormat, internalPool);
-
-		bool result = requestedlFormat == internalFormat;
-		if (!result)
-			MYGUI_PLATFORM_LOG(Warning, "Texture format '" << requestedlFormat << "'is not supported.");
-		return result;
+// 		D3DFORMAT internalFormat = D3DFMT_UNKNOWN;
+// 		unsigned long internalUsage = 0;
+// 		D3DPOOL internalPool = D3DPOOL_MANAGED;
+// 
+// 		if (_usage == TextureUsage::RenderTarget)
+// 		{
+// 			internalUsage |= D3DUSAGE_RENDERTARGET;
+// 			internalPool = D3DPOOL_MANAGED;
+// 		}
+// 		else if (_usage == TextureUsage::Dynamic)
+// 			internalUsage |= D3DUSAGE_DYNAMIC;
+// 		else if (_usage == TextureUsage::Stream)
+// 			internalUsage |= D3DUSAGE_DYNAMIC;
+// 
+// 		if (_format == PixelFormat::R8G8B8A8)
+// 		{
+// 			internalFormat = D3DFMT_A8R8G8B8;
+// 		}
+// 		else if (_format == PixelFormat::R8G8B8)
+// 		{
+// 			internalFormat = D3DFMT_R8G8B8;
+// 		}
+// 		else if (_format == PixelFormat::L8A8)
+// 		{
+// 			internalFormat = D3DFMT_A8L8;
+// 		}
+// 		else if (_format == PixelFormat::L8)
+// 		{
+// 			internalFormat = D3DFMT_L8;
+// 		}
+// 
+// 		D3DFORMAT requestedlFormat = internalFormat;
+// 		D3DXCheckTextureRequirements(mpD3DDevice, NULL, NULL, NULL, internalUsage, &internalFormat, internalPool);
+// 
+// 		bool result = requestedlFormat == internalFormat;
+// 		if (!result)
+// 			MYGUI_PLATFORM_LOG(Warning, "Texture format '" << requestedlFormat << "'is not supported.");
+// 		return result;
+		return true;
 	}
 
 	void KgeRenderManager::destroyAllResources()
@@ -259,20 +262,12 @@ namespace MyGUI
 	{
 		MYGUI_PLATFORM_LOG(Info, "device D3D lost");
 
-		for (MapTexture::const_iterator item = mTextures.begin(); item != mTextures.end(); ++item)
-		{
-			static_cast<KgeTexture*>(item->second)->deviceLost();
-		}
 	}
 
 	void KgeRenderManager::deviceRestore()
 	{
 		MYGUI_PLATFORM_LOG(Info, "device D3D restore");
 
-		for (MapTexture::const_iterator item = mTextures.begin(); item != mTextures.end(); ++item)
-		{
-			static_cast<KgeTexture*>(item->second)->deviceRestore();
-		}
 
 		mUpdate = true;
 	}

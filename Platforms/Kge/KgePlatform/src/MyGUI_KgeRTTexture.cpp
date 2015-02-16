@@ -4,25 +4,21 @@
 	@date		12/2009
 */
 
-#include <d3dx9.h>
 #include "MyGUI_KgeRTTexture.h"
 #include "MyGUI_KgeRenderManager.h"
+#include <Device.h>
+#include <gfx/Texture.h>
+#include <gfx/Renderer.h>
 
 namespace MyGUI
 {
 
-	KgeRTTexture::KgeRTTexture(IDirect3DDevice9* _device, IDirect3DTexture9* _texture) :
-		mpD3DDevice(_device),
-		mpTexture(_texture),
-		mpRenderSurface(NULL),
-		mpBackBuffer(NULL)
+	KgeRTTexture::KgeRTTexture(kge::Device* _device, kge::gfx::Texture* _texture) :
+		mpKGEDevice(_device),
+		mpTexture(_texture)
 	{
-		mpTexture->GetSurfaceLevel(0, &mpRenderSurface);
-
-		D3DSURFACE_DESC info;
-		mpTexture->GetLevelDesc(0, &info);
-		int width = info.Width;
-		int height = info.Height;
+		int width = mpTexture->GetWidth();
+		int height = mpTexture->GetHeight();
 
 		mRenderTargetInfo.maximumDepth = 0.0f;
 		mRenderTargetInfo.hOffset = -0.5f / float(width);
@@ -34,30 +30,18 @@ namespace MyGUI
 
 	KgeRTTexture::~KgeRTTexture()
 	{
-		if (mpRenderSurface != nullptr)
-		{
-			mpRenderSurface->Release();
-			mpRenderSurface = nullptr;
-		}
 	}
 
 	void KgeRTTexture::begin()
 	{
-		mpD3DDevice->GetRenderTarget(0, &mpBackBuffer);
-
-		mpD3DDevice->SetRenderTarget(0, mpRenderSurface);
-		mpD3DDevice->Clear(0, NULL, D3DCLEAR_TARGET,
-			D3DCOLOR_RGBA(0, 0, 0, 0), 1, 0);
-
-		mpD3DDevice->BeginScene();
+		mpKGEDevice->GetRenderer()->SetRenderTarget(0, mpTexture);
+		mpKGEDevice->GetRenderer()->BeginRendering(true, true, true);
 	}
 
 	void KgeRTTexture::end()
 	{
-		mpD3DDevice->EndScene();
-
-		mpD3DDevice->SetRenderTarget(0, mpBackBuffer);
-		mpBackBuffer->Release();
+		mpKGEDevice->GetRenderer()->EndRendering();
+		mpKGEDevice->GetRenderer()->SetRenderTarget();
 	}
 
 	void KgeRTTexture::doRender(IVertexBuffer* _buffer, ITexture* _texture, size_t _count)

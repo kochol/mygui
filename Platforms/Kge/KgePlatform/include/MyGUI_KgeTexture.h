@@ -12,7 +12,17 @@
 #include "MyGUI_RenderFormat.h"
 #include "MyGUI_Types.h"
 
-struct IDirect3DTexture9;
+namespace kge
+{
+	namespace gfx
+	{
+		class Texture;
+
+	} // gfx
+
+	class Device;
+
+} // kge
 
 namespace MyGUI
 {
@@ -20,7 +30,7 @@ namespace MyGUI
 	class KgeTexture : public ITexture
 	{
 	public:
-		KgeTexture(const std::string& _name, IDirect3DDevice9* _device);
+		KgeTexture(const std::string& _name, kge::Device* _device);
 		virtual ~KgeTexture();
 
 		virtual const std::string& getName() const;
@@ -45,16 +55,14 @@ namespace MyGUI
 		virtual IRenderTarget* getRenderTarget();
 
 		/*internal:*/
-		IDirect3DTexture9* getKgeTexture()
+		kge::gfx::Texture* getKgeTexture()
 		{
 			return mpTexture;
 		}
-		void deviceLost();
-		void deviceRestore();
 
 	private:
-		IDirect3DDevice9* mpD3DDevice;
-		IDirect3DTexture9* mpTexture;
+		kge::Device* mpKGEDevice;
+		kge::gfx::Texture* mpTexture;
 		IntSize mSize;
 		TextureUsage mTextureUsage;
 		PixelFormat mPixelFormat;
@@ -62,8 +70,6 @@ namespace MyGUI
 		bool mLock;
 		std::string mName;
 		IRenderTarget* mRenderTarget;
-		D3DPOOL mInternalPool;
-		D3DFORMAT mInternalFormat;
 		unsigned long mInternalUsage;
 	};
 
